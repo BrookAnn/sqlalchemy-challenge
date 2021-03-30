@@ -31,7 +31,7 @@ def welcome():
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
         f"/api/v1.0/<start><br/>"
-        f"/api/v1.0/<start>/<end>/>"
+        f"/api/v1.0/<start>/<end>"
         
     )
 #Convert the query results to a dictionary using date as the key and prcp as the value.
@@ -75,6 +75,27 @@ def tobs():
     for tob in Last_12:
         Emp_data.append (tob)
     return jsonify(Emp_data) 
+
+@app.route ("/api/v1.0/<start>")
+def Start_date(start):
+    Activate_state = session.query (func.min(measurements.tobs),func.max(measurements.tobs),func.avg(measurements.tobs)).filter(measurements.date>=start).all()
+    DateStart = []
+    for Y in Activate_state:
+        DateStart.append ({
+        "Min":Y[0],"Max":Y[1],"Avg":Y[2]
+        })
+    return jsonify(DateStart)
+
+
+@app.route ("/api/v1.0/<start>/<end>")
+def End_date(start,end):
+    Activate_state2 = session.query (func.min(measurements.tobs),func.max(measurements.tobs),func.avg(measurements.tobs)).filter(measurements.date>=start).filter(measurements.date<=end).all()
+    End_date = []
+    for ending in Activate_state2:
+        End_date.append ({
+        "Min":ending[0],"Max":ending[1],"Avg":ending[2]
+        })
+    return jsonify(End_date)
 
 if __name__ == '__main__':
     app.run(debug=True)
